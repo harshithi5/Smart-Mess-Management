@@ -1,3 +1,4 @@
+// src/Features.jsx
 import React from 'react'
 import Featurecard from './Featurecard'
 import Books01 from './assets/books01.svg'
@@ -20,13 +21,12 @@ function Features() {
           <Featurecard content="Delay Alerts" link={Bell} />
           <Featurecard content="Rate Your Meal" link={Graph} />
           <Featurecard content="Raise Complaints" link={Complaint} />
-          <Featurecard content="QR Based Entry" link={QR} />
+          <Featurecard content="QR Based Entry" link={QR} path="/my-qr" />
           <Featurecard content="Mess Coupons" link={Coupon} />
           <Featurecard content="Transparent Allotments" link={Raise} />
         </div>
       </div>
     </div>
-
   )
 }
 
