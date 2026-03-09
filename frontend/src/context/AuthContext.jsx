@@ -1,28 +1,23 @@
 // src/context/AuthContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
-import {
-  signInWithPopup,
-  signInAnonymously,
-  signOut,
-  onAuthStateChanged,
-} from "firebase/auth";
+import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
-
 const ALLOWED_DOMAIN = "iitmandi.ac.in";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState(null); // "student" | "guest" | null
+  const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
-        // Restore userType from localStorage on refresh
         const savedType = localStorage.getItem("userType");
         setUserType(savedType || null);
       } else {
@@ -35,7 +30,6 @@ export function AuthProvider({ children }) {
     return unsubscribe;
   }, []);
 
-  // Login for students — enforces @students.iitmandi.ac.in domain
   const loginAsStudent = async () => {
     setError(null);
     try {
@@ -44,36 +38,33 @@ export function AuthProvider({ children }) {
       const email = result.user.email;
 
       if (!email.endsWith(ALLOWED_DOMAIN)) {
-        await signOut(auth); // kick them out immediately
+        await signOut(auth);
         setError(`Access denied. Only ${ALLOWED_DOMAIN} accounts are allowed.`);
         return false;
       }
 
       localStorage.setItem("userType", "student");
       setUserType("student");
+      navigate("/dashboard");
       return true;
     } catch (err) {
-      if (err.code !== "auth/popup-closed-by-user") {
-        setError(err.message);
-      }
+      if (err.code !== "auth/popup-closed-by-user") setError(err.message);
       return false;
     }
   };
 
-  // Guest login — any Google account is fine
   const loginAsGuest = async () => {
     setError(null);
     try {
       googleProvider.setCustomParameters({ prompt: "select_account" });
-      const result = await signInWithPopup(auth, googleProvider);
+      await signInWithPopup(auth, googleProvider);
 
       localStorage.setItem("userType", "guest");
       setUserType("guest");
+      navigate("/dashboard");
       return true;
     } catch (err) {
-      if (err.code !== "auth/popup-closed-by-user") {
-        setError(err.message);
-      }
+      if (err.code !== "auth/popup-closed-by-user") setError(err.message);
       return false;
     }
   };
@@ -82,6 +73,7 @@ export function AuthProvider({ children }) {
     await signOut(auth);
     localStorage.removeItem("userType");
     setUserType(null);
+    navigate("/");
   };
 
   return (
