@@ -10,6 +10,7 @@ import QR from '../assets/qr1.svg';
 import Coupon from '../assets/coupon2.svg';
 import Complaint from '../assets/complaint2.svg';
 import Notification from '../assets/notification.svg';
+import Logout from '../assets/logout.svg';
 
 function Leftbar() {
     const navigate = useNavigate();
@@ -93,6 +94,21 @@ function Leftbar() {
                         Notifications
                     </div>
                 </div>
+
+                {/* Logout */}
+                <div className="flex items-end gap-3 cursor-pointer group w-max"
+                    onClick={() => navigate('/')}                //edit it here
+                >
+                    <img
+                        src={Logout}
+                        className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale"
+                    />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">
+                        Logout
+                    </div>
+                </div>
+
+                
             </div>
         </div>
     );

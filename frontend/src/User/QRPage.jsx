@@ -23,7 +23,7 @@ function QRPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center gap-6 p-6">
+    <div className="min-h-screen flex flex-col items-center justify-center gap-6 p-6">
       <button
         onClick={() => navigate(-1)}
         className="self-start ml-4 text-gray-500 hover:text-gray-800 flex items-center gap-1 text-sm"

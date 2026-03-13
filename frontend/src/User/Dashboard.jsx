@@ -18,7 +18,7 @@ function Dashboard() {
         <Left />
       </div>
 
-      <div className="h-screen flex-1 bg-zinc-200 overflow-y-auto">
+      <div className="h-screen flex-1 bg-blue-200 overflow-y-auto">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/qr" element={<QRPage />} />
