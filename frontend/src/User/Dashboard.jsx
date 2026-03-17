@@ -5,11 +5,11 @@ import Left from './Leftbar';
 import Home from './Home';
 import QRPage from './QRPage';
 import MessForm from './MessForm';
+import Notification from './Notification';
 
 const Profile = () => <div className="p-6 text-xl">Profile Page</div>;
 const Coupon = () => <div className="p-6 text-xl">Coupon Page</div>;
 const Complaint = () => <div className="p-6 text-xl">Complaint Page</div>;
-const Notification = () => <div className="p-6 text-xl">Notification Page</div>;
 
 function Dashboard() {
   return (
@@ -18,7 +18,7 @@ function Dashboard() {
         <Left />
       </div>
 
-      <div className="h-screen flex-1 bg-zinc-200 overflow-y-auto">
+      <div className="h-screen flex-1 bg-blue-200 overflow-y-auto">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/qr" element={<QRPage />} />
