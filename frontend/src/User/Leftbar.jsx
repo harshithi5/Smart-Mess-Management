@@ -10,7 +10,7 @@ import Coupon from '../assets/coupon2.svg';
 import Complaint from '../assets/complaint2.svg';
 import Notification from '../assets/notification.svg';
 import Logout from '../assets/logout.svg';
-import MessIcon from '../assets/qr.svg'; // reuse any icon or add a dedicated one
+import MessIcon from '../assets/vote.svg'; // reuse any icon or add a dedicated one
 
 function Leftbar() {
     const navigate = useNavigate();
@@ -67,15 +67,6 @@ function Leftbar() {
                     <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Mess Form</div>
                 </div>
 
-                {/* Coupon */}
-                <div
-                    className="flex items-end gap-3 cursor-pointer group w-max"
-                    onClick={() => navigate('/dashboard/coupon')}
-                >
-                    <img src={Coupon} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Get Coupon</div>
-                </div>
-
                 {/* Complaint */}
                 <div
                     className="flex items-end gap-3 cursor-pointer group w-max"
@@ -91,7 +82,9 @@ function Leftbar() {
                     onClick={() => navigate('/dashboard/notification')}
                 >
                     <img src={Notification} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Notifications</div>
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all flex items-center gap-3">Notifications 
+                        <div className='bg-red-600 rounded-full h-2 w-2'></div>
+                    </div>
                 </div>
 
                 {/* Logout */}

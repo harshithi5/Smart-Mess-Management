@@ -6,9 +6,8 @@ import Home from './Home';
 import QRPage from './QRPage';
 import MessForm from './MessForm';
 import Notification from './Notification';
+import Profile from './Profile';
 
-const Profile = () => <div className="p-6 text-xl">Profile Page</div>;
-const Coupon = () => <div className="p-6 text-xl">Coupon Page</div>;
 const Complaint = () => <div className="p-6 text-xl">Complaint Page</div>;
 
 function Dashboard() {
@@ -24,7 +23,6 @@ function Dashboard() {
           <Route path="/qr" element={<QRPage />} />
           <Route path="/mess-form" element={<MessForm />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/coupon" element={<Coupon />} />
           <Route path="/complaint" element={<Complaint />} />
           <Route path="/notification" element={<Notification />} />
         </Routes>

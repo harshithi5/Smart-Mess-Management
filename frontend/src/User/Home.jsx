@@ -50,7 +50,7 @@ function Home() {
 
       <div>
         <div className="text-3xl font-bold mb-1">Today's Menu</div>
-        <div className="text-lg mb-6 pl-1">{today}</div>
+        <div className="text-lg mb-6 pl-1 font-semibold">{today}</div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-white rounded-xl shadow p-4 text-center">
