@@ -2,6 +2,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import { getUserProfile } from "../services/messService";
 import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
@@ -9,19 +10,28 @@ const ALLOWED_DOMAIN = "iitmandi.ac.in";
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [userProfile, setUserProfile] = useState(null);
   const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         setUser(firebaseUser);
         const savedType = localStorage.getItem("userType");
         setUserType(savedType || null);
+        // Fetch or create Firestore profile
+        try {
+          const profile = await getUserProfile(firebaseUser);
+          setUserProfile(profile);
+        } catch (e) {
+          console.error("Failed to fetch user profile:", e);
+        }
       } else {
         setUser(null);
+        setUserProfile(null);
         setUserType(null);
         localStorage.removeItem("userType");
       }
@@ -58,7 +68,6 @@ export function AuthProvider({ children }) {
     try {
       googleProvider.setCustomParameters({ prompt: "select_account" });
       await signInWithPopup(auth, googleProvider);
-
       localStorage.setItem("userType", "guest");
       setUserType("guest");
       navigate("/dashboard");
@@ -73,12 +82,21 @@ export function AuthProvider({ children }) {
     await signOut(auth);
     localStorage.removeItem("userType");
     setUserType(null);
+    setUserProfile(null);
     navigate("/");
+  };
+
+  // Call this after onboarding to update profile in context
+  const refreshUserProfile = async () => {
+    if (user) {
+      const profile = await getUserProfile(user);
+      setUserProfile(profile);
+    }
   };
 
   return (
     <AuthContext.Provider
-      value={{ user, userType, loading, error, loginAsStudent, loginAsGuest, logout }}
+      value={{ user, userProfile, userType, loading, error, loginAsStudent, loginAsGuest, logout, refreshUserProfile }}
     >
       {children}
     </AuthContext.Provider>

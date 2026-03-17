@@ -1,19 +1,24 @@
+// src/User/Leftbar.jsx
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import Logo from '../assets/logo.svg';
 import Home from '../assets/home.svg';
-import Search from '../assets/search.svg';
-import Shelf from '../assets/shelflogo.svg';
-import History from '../assets/history.svg';
 import Profile from '../assets/profile.svg';
 import QR from '../assets/qr1.svg';
 import Coupon from '../assets/coupon2.svg';
 import Complaint from '../assets/complaint2.svg';
 import Notification from '../assets/notification.svg';
 import Logout from '../assets/logout.svg';
+import MessIcon from '../assets/qr.svg'; // reuse any icon or add a dedicated one
 
 function Leftbar() {
     const navigate = useNavigate();
+    const { logout } = useAuth();
+
+    const handleLogout = async () => {
+        await logout(); // signs out + navigates to "/" via AuthContext
+    };
 
     return (
         <div className='h-full w-full bg-white p-10 flex flex-col items-center gap-20'>
@@ -25,6 +30,7 @@ function Leftbar() {
 
             {/* Navigation Items */}
             <div className='w-full flex flex-col gap-6'>
+
                 {/* Home */}
                 <div
                     className="flex items-end gap-3 cursor-pointer group w-max"
@@ -44,71 +50,59 @@ function Leftbar() {
                 </div>
 
                 {/* QR */}
-                <div className="flex items-end gap-3 cursor-pointer group w-max"
+                <div
+                    className="flex items-end gap-3 cursor-pointer group w-max"
                     onClick={() => navigate('/dashboard/qr')}
                 >
-                    <img
-                        src={QR}
-                        className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale"
-                    />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">
-                        Show QR
-                    </div>
+                    <img src={QR} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Show QR</div>
+                </div>
+
+                {/* Mess Form */}
+                <div
+                    className="flex items-end gap-3 cursor-pointer group w-max"
+                    onClick={() => navigate('/dashboard/mess-form')}
+                >
+                    <img src={MessIcon} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Mess Form</div>
                 </div>
 
                 {/* Coupon */}
-                <div className="flex items-end gap-3 cursor-pointer group w-max"
+                <div
+                    className="flex items-end gap-3 cursor-pointer group w-max"
                     onClick={() => navigate('/dashboard/coupon')}
                 >
-                    <img
-                        src={Coupon}
-                        className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale"
-                    />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">
-                        Get Coupon
-                    </div>
+                    <img src={Coupon} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Get Coupon</div>
                 </div>
 
                 {/* Complaint */}
-                <div className="flex items-end gap-3 cursor-pointer group w-max"
+                <div
+                    className="flex items-end gap-3 cursor-pointer group w-max"
                     onClick={() => navigate('/dashboard/complaint')}
                 >
-                    <img
-                        src={Complaint}
-                        className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale"
-                    />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">
-                        Raise Complaint
-                    </div>
+                    <img src={Complaint} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Raise Complaint</div>
                 </div>
 
                 {/* Notification */}
-                <div className="flex items-end gap-3 cursor-pointer group w-max"
+                <div
+                    className="flex items-end gap-3 cursor-pointer group w-max"
                     onClick={() => navigate('/dashboard/notification')}
                 >
-                    <img
-                        src={Notification}
-                        className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale"
-                    />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">
-                        Notifications
-                    </div>
+                    <img src={Notification} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Notifications</div>
                 </div>
 
                 {/* Logout */}
-                <div className="flex items-end gap-3 cursor-pointer group w-max"
-                    onClick={() => navigate('/')}                //edit it here
+                <div
+                    className="flex items-end gap-3 cursor-pointer group w-max"
+                    onClick={handleLogout}
                 >
-                    <img
-                        src={Logout}
-                        className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale"
-                    />
-                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">
-                        Logout
-                    </div>
+                    <img src={Logout} className="h-6 transition-all group-hover:brightness-0 group-hover:grayscale" />
+                    <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Logout</div>
                 </div>
 
-                
             </div>
         </div>
     );
