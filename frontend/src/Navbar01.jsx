@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import Logo from "./assets/logo.svg";
 import { useAuth } from "./context/AuthContext";
 import { useVendorAuth } from "./context/VendorAuthContext";
+import { useAdminAuth } from "./context/AdminAuthContext";
 
-function RoleModal({ onClose, onStudent, onGuest, onVendor, error, vendorError }) {
+function RoleModal({ onClose, onStudent, onGuest, onVendor, onAdmin, error, vendorError, adminError }) {
   return (
     <div className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-8 flex flex-col gap-6">
@@ -15,6 +16,7 @@ function RoleModal({ onClose, onStudent, onGuest, onVendor, error, vendorError }
         </div>
 
         <div className="flex flex-col gap-3">
+          {/* Student */}
           <button
             onClick={onStudent}
             className="w-full flex items-center gap-3 bg-[#5352ed] text-white px-5 py-3 rounded-xl font-semibold hover:bg-indigo-600 transition"
@@ -26,6 +28,7 @@ function RoleModal({ onClose, onStudent, onGuest, onVendor, error, vendorError }
             </div>
           </button>
 
+          {/* Guest */}
           <button
             onClick={onGuest}
             className="w-full flex items-center gap-3 bg-[#ff7f56] text-white px-5 py-3 rounded-xl font-semibold hover:bg-orange-500 transition"
@@ -43,6 +46,7 @@ function RoleModal({ onClose, onStudent, onGuest, onVendor, error, vendorError }
             <div className="flex-1 border-t border-gray-200" />
           </div>
 
+          {/* Vendor */}
           <button
             onClick={onVendor}
             className="w-full flex items-center gap-3 border-2 border-gray-200 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:border-[#5352ed] hover:text-[#5352ed] transition"
@@ -53,11 +57,23 @@ function RoleModal({ onClose, onStudent, onGuest, onVendor, error, vendorError }
               <p className="text-xs text-gray-400">Mess staff only</p>
             </div>
           </button>
+
+          {/* Admin */}
+          <button
+            onClick={onAdmin}
+            className="w-full flex items-center gap-3 border-2 border-gray-200 text-gray-700 px-5 py-3 rounded-xl font-semibold hover:border-rose-400 hover:text-rose-500 transition"
+          >
+            <span className="text-xl">🛡️</span>
+            <div className="text-left">
+              <p className="text-sm font-semibold">Admin Login</p>
+              <p className="text-xs text-gray-400">Authorised personnel only</p>
+            </div>
+          </button>
         </div>
 
-        {(error || vendorError) && (
+        {(error || vendorError || adminError) && (
           <div className="bg-red-50 border border-red-200 text-red-600 text-xs rounded-lg px-4 py-2 text-center">
-            {error || vendorError}
+            {error || vendorError || adminError}
           </div>
         )}
 
@@ -71,8 +87,14 @@ function RoleModal({ onClose, onStudent, onGuest, onVendor, error, vendorError }
 
 function Navbar01() {
   const { user, userType, loading, error, loginAsStudent, loginAsGuest, logout } = useAuth();
-  const { loginAsVendor, error: vendorError } = useVendorAuth();
+  const { vendor, loginAsVendor, logoutVendor, error: vendorError } = useVendorAuth();
+  const { admin, loginAsAdmin, logoutAdmin, error: adminError } = useAdminAuth();
   const [showModal, setShowModal] = useState(false);
+
+  // Determine who is currently logged in
+  const activeUser = user || vendor || admin;
+  const isVendor = !!vendor;
+  const isAdmin = !!admin;
 
   const handleStudent = async () => {
     const ok = await loginAsStudent();
@@ -89,6 +111,40 @@ function Navbar01() {
     if (ok) setShowModal(false);
   };
 
+  const handleAdmin = async () => {
+    const ok = await loginAsAdmin();
+    if (ok) setShowModal(false);
+  };
+
+  // Unified logout — redirects everyone back to "/"
+  const handleLogout = async () => {
+    if (isAdmin) await logoutAdmin();
+    else if (isVendor) await logoutVendor();
+    else await logout();
+  };
+
+  const displayName = isAdmin
+    ? admin?.displayName?.split(" ")[0]
+    : isVendor
+    ? vendor?.displayName?.split(" ")[0]
+    : user?.displayName?.split(" ")[0];
+
+  const photoURL = isAdmin
+    ? admin?.photoURL
+    : isVendor
+    ? vendor?.photoURL
+    : user?.photoURL;
+
+  const roleLabel = isAdmin
+    ? <span className="ml-1 text-xs text-rose-500">(Admin)</span>
+    : isVendor
+    ? <span className="ml-1 text-xs text-green-500">(Vendor)</span>
+    : userType === "guest"
+    ? <span className="ml-1 text-xs text-orange-400">(Guest)</span>
+    : userType === "student"
+    ? <span className="ml-1 text-xs text-indigo-500">(Student)</span>
+    : null;
+
   return (
     <>
       {showModal && (
@@ -97,8 +153,10 @@ function Navbar01() {
           onStudent={handleStudent}
           onGuest={handleGuest}
           onVendor={handleVendor}
+          onAdmin={handleAdmin}
           error={error}
           vendorError={vendorError}
+          adminError={adminError}
         />
       )}
 
@@ -119,20 +177,19 @@ function Navbar01() {
         <div className="flex h-12 items-end md:gap-3 gap-1">
           {loading ? (
             <div className="text-gray-400 text-sm">Loading...</div>
-          ) : user ? (
+          ) : activeUser ? (
             <div className="flex items-end gap-3">
               <div className="flex items-center gap-2">
-                {user.photoURL && (
-                  <img src={user.photoURL} className="h-8 w-8 rounded-full" referrerPolicy="no-referrer" />
+                {photoURL && (
+                  <img src={photoURL} className="h-8 w-8 rounded-full" referrerPolicy="no-referrer" />
                 )}
                 <div className="text-sm font-medium text-gray-700 hidden md:block">
-                  {user.displayName?.split(" ")[0]}
-                  {userType === "guest" && <span className="ml-1 text-xs text-orange-400">(Guest)</span>}
-                  {userType === "student" && <span className="ml-1 text-xs text-indigo-500">(Student)</span>}
+                  {displayName}
+                  {roleLabel}
                 </div>
               </div>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-gray-500 border border-gray-300 px-4 py-2 rounded-lg font-medium h-8 md:h-10 cursor-pointer flex items-center justify-center text-sm hover:bg-gray-50 transition"
               >
                 Logout
@@ -149,9 +206,9 @@ function Navbar01() {
         </div>
       </div>
 
-      {error && (
+      {(error || vendorError || adminError) && (
         <div className="bg-red-50 border-b border-red-200 text-red-600 text-sm text-center py-2 px-4">
-          {error}
+          {error || vendorError || adminError}
         </div>
       )}
     </>

@@ -6,6 +6,7 @@ import { auth, googleProvider } from "../firebase";
 
 const VendorAuthContext = createContext();
 
+// Admin emails removed — handled by AdminAuthContext separately
 const VENDOR_MESS_MAP = {
   "oak@iitmandi.ac.in":              { messId: "mess1", messName: "Mess 1" },
   "pine@iitmandi.ac.in":             { messId: "mess2", messName: "Mess 2" },
@@ -22,19 +23,17 @@ export function VendorAuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  const loggingOutRef = useRef(false); // prevent onAuthStateChanged side effects during logout
+  const loggingOutRef = useRef(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      if (loggingOutRef.current) return; // skip during manual logout
-
+      if (loggingOutRef.current) return;
       if (firebaseUser) {
         const messInfo = VENDOR_MESS_MAP[firebaseUser.email];
         if (messInfo) {
           setVendor(firebaseUser);
           setVendorMess(messInfo);
         }
-        // if not a vendor email, do nothing — AuthContext handles user accounts
       } else {
         setVendor(null);
         setVendorMess(null);
@@ -51,13 +50,11 @@ export function VendorAuthProvider({ children }) {
       const result = await signInWithPopup(auth, googleProvider);
       const email = result.user.email;
       const messInfo = VENDOR_MESS_MAP[email];
-
       if (!messInfo) {
         await signOut(auth);
         setError("Access denied. This account is not authorised as a vendor.");
         return false;
       }
-
       setVendor(result.user);
       setVendorMess(messInfo);
       navigate("/vendor/dashboard");
@@ -68,11 +65,13 @@ export function VendorAuthProvider({ children }) {
     }
   };
 
+  // ✅ Fixed: redirects back to /vendor login page after logout
   const logoutVendor = async () => {
+    loggingOutRef.current = true;
     await signOut(auth);
-    localStorage.removeItem("userType");
-    setUserType(null);
-    setUserProfile(null);
+    setVendor(null);
+    setVendorMess(null);
+    loggingOutRef.current = false;
     navigate("/");
   };
 

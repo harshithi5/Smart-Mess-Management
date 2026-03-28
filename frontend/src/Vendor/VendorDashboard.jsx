@@ -4,8 +4,7 @@ import { Routes, Route } from "react-router-dom";
 import VendorLeftbar from "./VendorLeftbar";
 import VendorScanner from "./VendorScanner";
 import VendorHome from "./VendorHome";
-
-const VendorNotifications = () => <div className="p-6 text-xl">Notifications</div>;
+import VendorNotifications from "./VendorNotifications";
 
 function VendorDashboard() {
   return (

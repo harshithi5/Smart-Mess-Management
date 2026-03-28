@@ -1,18 +1,22 @@
-// src/main.jsx
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import App from './App.jsx';
-import { BrowserRouter } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext.jsx';
-import { VendorAuthProvider } from './context/VendorAuthContext.jsx';
-import './index.css';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import App from './App'
+import { AuthProvider } from './context/AuthContext'
+import { VendorAuthProvider } from './context/VendorAuthContext'
+import { AdminAuthProvider } from './context/AdminAuthContext' 
+import './index.css'
 
 ReactDOM.createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <AuthProvider>
-      <VendorAuthProvider>
-        <App />
-      </VendorAuthProvider>
-    </AuthProvider>
-  </BrowserRouter>
-);
+  <React.StrictMode>
+    <BrowserRouter>
+      <AuthProvider>
+        <VendorAuthProvider>
+          <AdminAuthProvider>                                     
+            <App />
+          </AdminAuthProvider>                                     
+        </VendorAuthProvider>
+      </AuthProvider>
+    </BrowserRouter>
+  </React.StrictMode>
+)

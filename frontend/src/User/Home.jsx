@@ -1,7 +1,12 @@
 // src/User/Home.jsx
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import { db } from '../firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
-const weeklyMenu = {
+const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+
+// Fallback if Firestore hasn't been seeded yet
+const DEFAULT_MENU = {
   Monday: {
     breakfast: "Aloo Onion Paratha, Curd, Fruits/2 Eggs, Milk, Bread & Butter, Tea/Coffee, Sprouts",
     lunch: "Rajma, Cabbage-Matar, Jeera Rice, Roti, Curd, Green Salad, Lemon & Pickle",
@@ -39,11 +44,27 @@ const weeklyMenu = {
   },
 }
 
-const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-
 function Home() {
   const today = days[new Date().getDay()]
-  const menu = weeklyMenu[today]
+  const [menu, setMenu] = useState(DEFAULT_MENU[today])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    async function fetchMenu() {
+      try {
+        const snap = await getDoc(doc(db, 'menu', today))
+        if (snap.exists()) {
+          setMenu(snap.data())
+        }
+        // else keep DEFAULT_MENU
+      } catch (err) {
+        console.error('Failed to fetch menu:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMenu()
+  }, [today])
 
   return (
     <div className="p-6 flex flex-col gap-10">
@@ -52,25 +73,33 @@ function Home() {
         <div className="text-3xl font-bold mb-1">Today's Menu</div>
         <div className="text-lg mb-6 pl-1 font-semibold">{today}</div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow p-4 text-center">
-            <h2 className="text-xl font-semibold">Breakfast</h2>
-            <p className="text-gray-600 mb-2 text-sm">7:30 AM – 9:30 AM</p>
-            <p className="text-gray-800 text-sm leading-relaxed">{menu.breakfast}</p>
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 animate-pulse">
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-gray-200 rounded-xl h-40" />
+            ))}
           </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-white rounded-xl shadow p-4 text-center">
+              <h2 className="text-xl font-semibold">🌅 Breakfast</h2>
+              <p className="text-gray-600 mb-2 text-sm">7:30 AM – 9:30 AM</p>
+              <p className="text-gray-800 text-sm leading-relaxed">{menu.breakfast}</p>
+            </div>
 
-          <div className="bg-white rounded-xl shadow p-4 text-center">
-            <h2 className="text-xl font-semibold">Lunch</h2>
-            <p className="text-gray-600 mb-2 text-sm">12:00 PM – 2:00 PM</p>
-            <p className="text-gray-800 text-sm leading-relaxed">{menu.lunch}</p>
-          </div>
+            <div className="bg-white rounded-xl shadow p-4 text-center">
+              <h2 className="text-xl font-semibold">☀️ Lunch</h2>
+              <p className="text-gray-600 mb-2 text-sm">12:00 PM – 2:00 PM</p>
+              <p className="text-gray-800 text-sm leading-relaxed">{menu.lunch}</p>
+            </div>
 
-          <div className="bg-white rounded-xl shadow p-4 text-center">
-            <h2 className="text-xl font-semibold">Dinner</h2>
-            <p className="text-gray-600 mb-2 text-sm">7:30 PM – 9:30 PM</p>
-            <p className="text-gray-800 text-sm leading-relaxed">{menu.dinner}</p>
+            <div className="bg-white rounded-xl shadow p-4 text-center">
+              <h2 className="text-xl font-semibold">🌙 Dinner</h2>
+              <p className="text-gray-600 mb-2 text-sm">7:30 PM – 9:30 PM</p>
+              <p className="text-gray-800 text-sm leading-relaxed">{menu.dinner}</p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <div className='text-2xl font-semibold'>Current Diners: 0</div>
@@ -104,15 +133,9 @@ function Home() {
           <div className="bg-white rounded-xl shadow-md p-6 flex flex-col items-center justify-center">
             <h2 className="text-2xl font-semibold mb-4">Rate Today's Food</h2>
             <div className="flex space-x-2 text-3xl cursor-pointer">
-              <span>⭐</span>
-              <span>⭐</span>
-              <span>⭐</span>
-              <span>⭐</span>
-              <span>⭐</span>
+              <span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span><span>⭐</span>
             </div>
-            <p className="text-gray-500 mt-3 text-sm">
-              Tap a star to rate the mess food
-            </p>
+            <p className="text-gray-500 mt-3 text-sm">Tap a star to rate the mess food</p>
           </div>
 
           {/* Know Your Mess Card */}

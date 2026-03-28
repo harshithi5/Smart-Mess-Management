@@ -8,6 +8,16 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 const ALLOWED_DOMAIN = "iitmandi.ac.in";
 
+const VENDOR_EMAILS = new Set([
+  "oak@iitmandi.ac.in",
+  "pine@iitmandi.ac.in",
+  "alder@iitmandi.ac.in",
+  "tulsi@iitmandi.ac.in",
+  "cedar@iitmandi.ac.in",
+  "bhumikamina96@gmail.com",
+  "harshitkumarsingh2609@gmail.com",
+]);
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
@@ -19,9 +29,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+
+        // ── Skip vendor accounts — VendorAuthContext handles these ──
+        if (VENDOR_EMAILS.has(firebaseUser.email)) {
+          setLoading(false);
+          return;
+        }
+
         setUser(firebaseUser);
         const savedType = localStorage.getItem("userType");
         setUserType(savedType || null);
+
         // Fetch or create Firestore profile
         try {
           const profile = await getUserProfile(firebaseUser);
@@ -86,7 +104,6 @@ export function AuthProvider({ children }) {
     navigate("/");
   };
 
-  // Call this after onboarding to update profile in context
   const refreshUserProfile = async () => {
     if (user) {
       const profile = await getUserProfile(user);
