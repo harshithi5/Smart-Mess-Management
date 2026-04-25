@@ -8,6 +8,23 @@ import QR from "../assets/qr1.svg";
 import Notification from "../assets/notification.svg";
 import Logout from "../assets/logout.svg";
 
+function NavItem({ icon, emoji, label, onClick, badge }) {
+  return (
+    <div className="flex items-end gap-3 cursor-pointer group w-max relative" onClick={onClick}>
+      {icon
+        ? <img src={icon} className="h-6 group-hover:brightness-0 group-hover:grayscale transition-all" />
+        : <span className="h-6 w-6 flex items-center justify-center text-base">{emoji}</span>
+      }
+      <div className="text-zinc-600 text-lg group-hover:text-black transition-all">{label}</div>
+      {badge > 0 && (
+        <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold">
+          {badge}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function VendorLeftbar() {
   const navigate = useNavigate();
   const { logoutVendor, vendorMess } = useVendorAuth();
@@ -25,39 +42,11 @@ function VendorLeftbar() {
 
       {/* Nav */}
       <div className="w-full flex flex-col gap-6">
-
-        <div
-          className="flex items-end gap-3 cursor-pointer group w-max"
-          onClick={() => navigate("/vendor/dashboard")}
-        >
-          <img src={Home} className="h-6 group-hover:brightness-0 group-hover:grayscale transition-all" />
-          <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Home</div>
-        </div>
-
-        <div
-          className="flex items-end gap-3 cursor-pointer group w-max"
-          onClick={() => navigate("/vendor/dashboard/scanner")}
-        >
-          <img src={QR} className="h-6 group-hover:brightness-0 group-hover:grayscale transition-all" />
-          <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Scanner</div>
-        </div>
-
-        <div
-          className="flex items-end gap-3 cursor-pointer group w-max"
-          onClick={() => navigate("/vendor/dashboard/notifications")}
-        >
-          <img src={Notification} className="h-6 group-hover:brightness-0 group-hover:grayscale transition-all" />
-          <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Notifications</div>
-        </div>
-
-        <div
-          className="flex items-end gap-3 cursor-pointer group w-max"
-          onClick={logoutVendor}
-        >
-          <img src={Logout} className="h-6 group-hover:brightness-0 group-hover:grayscale transition-all" />
-          <div className="text-zinc-600 text-lg group-hover:text-black transition-all">Logout</div>
-        </div>
-
+        <NavItem icon={Home}         label="Home"          onClick={() => navigate("/vendor/dashboard")} />
+        <NavItem icon={QR}           label="Scanner"       onClick={() => navigate("/vendor/dashboard/scanner")} />
+        <NavItem icon={Notification} label="Notifications" onClick={() => navigate("/vendor/dashboard/notifications")} />
+        <NavItem emoji="📣"          label="Complaints"    onClick={() => navigate("/vendor/dashboard/complaints")} />
+        <NavItem icon={Logout}       label="Logout"        onClick={logoutVendor} />
       </div>
     </div>
   );

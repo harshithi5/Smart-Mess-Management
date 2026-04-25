@@ -5,27 +5,9 @@ import AdminLeftbar from "./AdminLeftbar";
 import AdminHome from "./AdminHome";
 import AdminNotifications from "./AdminNotifications";
 import AdminMenu from "./AdminMenu";
-
-const AdminRatings = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-800 mb-2">Mess Ratings</h1>
-    <p className="text-gray-400 text-sm">Detailed ratings per mess coming soon.</p>
-  </div>
-);
-
-const AdminWastage = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-800 mb-2">Food Wastage Reports</h1>
-    <p className="text-gray-400 text-sm">Mess-wise wastage tracking coming soon.</p>
-  </div>
-);
-
-const AdminComplaints = () => (
-  <div className="p-6">
-    <h1 className="text-2xl font-bold text-gray-800 mb-2">Student Complaints</h1>
-    <p className="text-gray-400 text-sm">Complaints inbox coming soon.</p>
-  </div>
-);
+import AdminRatings from "./AdminRatings";
+import AdminWastage from "./AdminWastage";
+import AdminComplaints from "./AdminComplaints";
 
 function AdminDashboard() {
   return (

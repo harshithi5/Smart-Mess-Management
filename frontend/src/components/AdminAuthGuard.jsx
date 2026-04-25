@@ -2,16 +2,18 @@
 import { Navigate } from "react-router-dom";
 import { useAdminAuth } from "../context/AdminAuthContext";
 
-// Redirect logged-in admin away from /admin login page
+// Admin already logged in — send to admin dashboard
 export function AdminPublicRoute({ children }) {
   const { admin, loading } = useAdminAuth();
   if (loading) return null;
-  return admin ? <Navigate to="/admin/dashboard" replace /> : children;
+  if (admin) return <Navigate to="/admin/dashboard" replace />;
+  return children;
 }
 
-// Protect /admin/dashboard — redirect to /admin if not logged in
+// Not an admin — send to home
 export function AdminPrivateRoute({ children }) {
   const { admin, loading } = useAdminAuth();
   if (loading) return null;
-  return admin ? children : <Navigate to="/admin" replace />;
+  if (!admin) return <Navigate to="/" replace />;
+  return children;
 }

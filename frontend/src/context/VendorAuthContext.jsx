@@ -6,15 +6,17 @@ import { auth, googleProvider } from "../firebase";
 
 const VendorAuthContext = createContext();
 
-// Admin emails removed — handled by AdminAuthContext separately
+// ── messIds MUST match the MESSES array in messService.js ──
+// mess1=Peepal, mess2=Oak, mess3=Pine, mess4=Alder, mess5=Tulsi, mess6=Cedar
 const VENDOR_MESS_MAP = {
-  "oak@iitmandi.ac.in":              { messId: "mess1", messName: "Mess 1" },
-  "pine@iitmandi.ac.in":             { messId: "mess2", messName: "Mess 2" },
-  "alder@iitmandi.ac.in":            { messId: "mess3", messName: "Mess 3" },
-  "tulsi@iitmandi.ac.in":            { messId: "mess4", messName: "Mess 4" },
-  "cedar@iitmandi.ac.in":            { messId: "mess5", messName: "Mess 5" },
-  "bhumikamina96@gmail.com":         { messId: "admin", messName: "Admin" },
-  "harshitkumarsingh2609@gmail.com": { messId: "admin", messName: "Admin" },
+  "oak@iitmandi.ac.in":              { messId: "mess2", messName: "Oak"    },
+  "pine@iitmandi.ac.in":             { messId: "mess3", messName: "Pine"   },
+  "alder@iitmandi.ac.in":            { messId: "mess4", messName: "Alder"  },
+  "tulsi@iitmandi.ac.in":            { messId: "mess5", messName: "Tulsi"  },
+  "cedar@iitmandi.ac.in":            { messId: "mess6", messName: "Cedar"  },
+  // Admin emails can log in as vendor for testing (Alder mess)
+  "bhumikamina96@gmail.com":         { messId: "mess4", messName: "Alder"  },
+  "harshitkumarsingh2609@gmail.com": { messId: "mess4", messName: "Alder"  },
 };
 
 export function VendorAuthProvider({ children }) {
@@ -28,11 +30,15 @@ export function VendorAuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (loggingOutRef.current) return;
-      if (firebaseUser) {
+      const savedRole = localStorage.getItem("vendorRole");
+      if (firebaseUser && savedRole === "vendor") {
         const messInfo = VENDOR_MESS_MAP[firebaseUser.email];
         if (messInfo) {
           setVendor(firebaseUser);
           setVendorMess(messInfo);
+        } else {
+          setVendor(null);
+          setVendorMess(null);
         }
       } else {
         setVendor(null);
@@ -55,6 +61,7 @@ export function VendorAuthProvider({ children }) {
         setError("Access denied. This account is not authorised as a vendor.");
         return false;
       }
+      localStorage.setItem("vendorRole", "vendor");
       setVendor(result.user);
       setVendorMess(messInfo);
       navigate("/vendor/dashboard");
@@ -65,12 +72,12 @@ export function VendorAuthProvider({ children }) {
     }
   };
 
-  // ✅ Fixed: redirects back to /vendor login page after logout
   const logoutVendor = async () => {
     loggingOutRef.current = true;
     await signOut(auth);
     setVendor(null);
     setVendorMess(null);
+    localStorage.removeItem("vendorRole");
     loggingOutRef.current = false;
     navigate("/");
   };

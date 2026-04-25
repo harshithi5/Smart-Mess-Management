@@ -7,8 +7,7 @@ import QRPage from './QRPage';
 import MessForm from './MessForm';
 import Notification from './Notification';
 import Profile from './Profile';
-
-const Complaint = () => <div className="p-6 text-xl">Complaint Page</div>;
+import Complaint from './Complaint';
 
 function Dashboard() {
   return (

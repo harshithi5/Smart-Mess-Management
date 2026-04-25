@@ -8,14 +8,13 @@ import { useNavigate } from "react-router-dom";
 const AuthContext = createContext();
 const ALLOWED_DOMAIN = "iitmandi.ac.in";
 
-const VENDOR_EMAILS = new Set([
+// Pure vendor emails (not admin) — these never log in as student/guest
+const VENDOR_ONLY_EMAILS = new Set([
   "oak@iitmandi.ac.in",
   "pine@iitmandi.ac.in",
   "alder@iitmandi.ac.in",
   "tulsi@iitmandi.ac.in",
   "cedar@iitmandi.ac.in",
-  "bhumikamina96@gmail.com",
-  "harshitkumarsingh2609@gmail.com",
 ]);
 
 export function AuthProvider({ children }) {
@@ -29,9 +28,17 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        // Skip pure vendor emails entirely — they never use student/guest dashboard
+        if (VENDOR_ONLY_EMAILS.has(firebaseUser.email)) {
+          setLoading(false);
+          return;
+        }
 
-        // ── Skip vendor accounts — VendorAuthContext handles these ──
-        if (VENDOR_EMAILS.has(firebaseUser.email)) {
+        // Skip if this session belongs to vendor or admin role
+        // (admin/vendor emails that chose vendor or admin login)
+        const vendorRole = localStorage.getItem("vendorRole");
+        const adminRole  = localStorage.getItem("adminRole");
+        if (vendorRole === "vendor" || adminRole === "admin") {
           setLoading(false);
           return;
         }
@@ -39,8 +46,6 @@ export function AuthProvider({ children }) {
         setUser(firebaseUser);
         const savedType = localStorage.getItem("userType");
         setUserType(savedType || null);
-
-        // Fetch or create Firestore profile
         try {
           const profile = await getUserProfile(firebaseUser);
           setUserProfile(profile);
@@ -64,13 +69,11 @@ export function AuthProvider({ children }) {
       googleProvider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, googleProvider);
       const email = result.user.email;
-
       if (!email.endsWith(ALLOWED_DOMAIN)) {
         await signOut(auth);
         setError(`Access denied. Only ${ALLOWED_DOMAIN} accounts are allowed.`);
         return false;
       }
-
       localStorage.setItem("userType", "student");
       setUserType("student");
       navigate("/dashboard");

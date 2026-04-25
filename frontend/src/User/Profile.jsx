@@ -1,85 +1,66 @@
 import React, { useState, useEffect } from 'react'
 import Avatar from '../assets/avatar.svg'
+import BhumikaPhoto from '../assets/batwoman.png'
+import HarshitPhoto from '../assets/batman.png'
 
-import { auth, db } from '../firebase'
-import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider } from 'firebase/auth'
-import { doc, getDoc, setDoc } from 'firebase/firestore'
+import { auth } from '../firebase'
+import { onAuthStateChanged } from 'firebase/auth'
 
 function getRollNo(email = '') {
   return email.split('@')[0].toUpperCase()
+}
+const STUDENT_DATA = {
+  'b23144@students.iitmandi.ac.in': {
+    name: 'Kumari Bhumika Meena',
+    hostelBlock: 'B-20',
+    affiliatedMess: 'Alder',
+    avatarUrl: BhumikaPhoto,
+  },
+  'b23133@students.iitmandi.ac.in': {
+    name: 'Harshit Singh',
+    hostelBlock: 'B-9',
+    affiliatedMess: 'Alder',
+    avatarUrl: HarshitPhoto,
+  },
 }
 
 function Profile() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [debugInfo, setDebugInfo] = useState('')
-
-  const handleGoogleSignIn = async () => {
-    const provider = new GoogleAuthProvider()
-    try {
-      await signInWithPopup(auth, provider)
-    } catch (err) {
-      console.error('Sign-in error:', err)
-      setError('Sign-in failed: ' + err.message)
-    }
-  }
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      console.log('=== AUTH STATE CHANGED ===')
-
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (!user) {
-        console.log('❌ No user logged in')
-        setDebugInfo('No user logged in')
         setLoading(false)
         return
       }
 
-      console.log('✅ User found:')
-      console.log('   UID:', user.uid)
-      console.log('   Email:', user.email)
-      console.log('   Display Name:', user.displayName)
-      setDebugInfo(`UID: ${user.uid} | Email: ${user.email}`)
+      const email = user.email?.toLowerCase() || ''
+      const hardcoded = STUDENT_DATA[email]
 
-      try {
-        const docRef = doc(db, 'students', user.uid)
-        console.log('📄 Fetching Firestore doc at: students/' + user.uid)
-
-        const docSnap = await getDoc(docRef)
-        console.log('📦 Doc exists?', docSnap.exists())
-
-        if (docSnap.exists()) {
-          const data = docSnap.data()
-          console.log('📋 Doc data:', data)
-          setProfile({
-            ...data,
-            rollNo: getRollNo(data.email),
-          })
-        } else {
-          console.log('🆕 No doc found — creating new student doc...')
-          const newStudent = {
-            name: user.displayName || '',
-            email: user.email || '',
-            hostelBlock: '',
-            affiliatedMess: '',
-            avatarUrl: user.photoURL || '',
-          }
-          await setDoc(docRef, newStudent)
-          console.log('✅ New doc created:', newStudent)
-          setProfile({
-            ...newStudent,
-            rollNo: getRollNo(newStudent.email),
-          })
-        }
-      } catch (err) {
-        console.error('❌ Firestore error:', err)
-        console.error('   Code:', err.code)
-        console.error('   Message:', err.message)
-        setError(`Error (${err.code}): ${err.message}`)
-      } finally {
-        setLoading(false)
+      if (hardcoded) {
+        // Use hardcoded data for known students
+        setProfile({
+          name: hardcoded.name,
+          email: user.email,
+          rollNo: getRollNo(email),
+          hostelBlock: hardcoded.hostelBlock,
+          affiliatedMess: hardcoded.affiliatedMess,
+          avatarUrl: hardcoded.avatarUrl,
+        })
+      } else {
+        // Fallback for any other logged-in student — use Google profile info
+        setProfile({
+          name: user.displayName || 'Student',
+          email: user.email,
+          rollNo: getRollNo(email),
+          hostelBlock: 'Not assigned',
+          affiliatedMess: 'Not assigned',
+          avatarUrl: user.photoURL || null,
+        })
       }
+
+      setLoading(false)
     })
 
     return () => unsubscribe()
@@ -88,6 +69,7 @@ function Profile() {
   return (
     <div className='min-h-screen flex items-center justify-center p-6 relative overflow-hidden'>
 
+      {/* Background Shapes */}
       <div className='absolute w-72 h-72 bg-orange-400 rounded-full top-[-40px] left-[-50px] opacity-90'></div>
       <div className='absolute w-96 h-96 bg-red-400 rounded-full bottom-[-20px] right-[-90px] opacity-90'></div>
 
@@ -112,44 +94,21 @@ function Profile() {
         )}
 
         {/* ── NOT LOGGED IN ── */}
-        {!loading && !profile && !error && (
-          <div className='py-8 space-y-4'>
-            <p className='text-gray-600 text-sm'>Sign in to view your profile</p>
-            <button
-              onClick={handleGoogleSignIn}
-              className='flex items-center gap-2 mx-auto px-5 py-2.5 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition'
-            >
-              <img
-                src='https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg'
-                alt='Google'
-                className='w-5 h-5'
-              />
-              Sign in with Google
-            </button>
-          </div>
-        )}
-
-        {/* ── ERROR — now shows the actual error message ── */}
-        {!loading && error && (
-          <div className='py-8 space-y-3'>
-            <p className='text-red-500 text-sm font-medium'>⚠️ {error}</p>
-            {/* Debug info box */}
-            <div className='mt-4 p-3 bg-gray-100 rounded-lg text-left text-xs text-gray-500 break-all'>
-              <p className='font-semibold mb-1'>Debug Info:</p>
-              <p>{debugInfo || 'No auth info captured'}</p>
-              <p className='mt-2 text-gray-400'>Check browser console (F12) for full logs</p>
-            </div>
+        {!loading && !profile && (
+          <div className='py-8'>
+            <p className='text-gray-500 text-sm'>Sign in to view your profile.</p>
           </div>
         )}
 
         {/* ── PROFILE ── */}
-        {!loading && !error && profile && (
+        {!loading && profile && (
           <>
             <div className='flex justify-center'>
               <img
                 src={profile.avatarUrl || Avatar}
                 alt='Profile'
                 className='w-24 h-24 rounded-full border-4 border-gray-200 object-cover'
+                referrerPolicy='no-referrer'
               />
             </div>
 
@@ -168,11 +127,11 @@ function Profile() {
               </div>
               <div className='flex justify-between border-b pb-2'>
                 <span className='font-medium'>Hostel Block:</span>
-                <span>{profile.hostelBlock || 'Not assigned'}</span>
+                <span>{profile.hostelBlock}</span>
               </div>
               <div className='flex justify-between'>
                 <span className='font-medium'>Affiliated Mess:</span>
-                <span>{profile.affiliatedMess || 'Not assigned'}</span>
+                <span>{profile.affiliatedMess}</span>
               </div>
             </div>
           </>

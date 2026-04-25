@@ -6,7 +6,7 @@ import { auth, googleProvider } from "../firebase";
 
 const AdminAuthContext = createContext();
 
-const ADMIN_EMAILS = new Set([
+export const ADMIN_EMAILS = new Set([
   "bhumikamina96@gmail.com",
   "harshitkumarsingh2609@gmail.com",
 ]);
@@ -21,8 +21,10 @@ export function AdminAuthProvider({ children }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
       if (loggingOutRef.current) return;
-
-      if (firebaseUser && ADMIN_EMAILS.has(firebaseUser.email)) {
+      // Only restore admin session if they were previously logged in as admin
+      // (stored in localStorage to remember which role they chose)
+      const savedRole = localStorage.getItem("adminRole");
+      if (firebaseUser && ADMIN_EMAILS.has(firebaseUser.email) && savedRole === "admin") {
         setAdmin(firebaseUser);
       } else {
         setAdmin(null);
@@ -38,13 +40,12 @@ export function AdminAuthProvider({ children }) {
       googleProvider.setCustomParameters({ prompt: "select_account" });
       const result = await signInWithPopup(auth, googleProvider);
       const email = result.user.email;
-
       if (!ADMIN_EMAILS.has(email)) {
         await signOut(auth);
         setError("Access denied. This account is not authorised as admin.");
         return false;
       }
-
+      localStorage.setItem("adminRole", "admin");
       setAdmin(result.user);
       navigate("/admin/dashboard");
       return true;
@@ -58,6 +59,7 @@ export function AdminAuthProvider({ children }) {
     loggingOutRef.current = true;
     await signOut(auth);
     setAdmin(null);
+    localStorage.removeItem("adminRole");
     loggingOutRef.current = false;
     navigate("/");
   };
@@ -72,4 +74,3 @@ export function AdminAuthProvider({ children }) {
 }
 
 export const useAdminAuth = () => useContext(AdminAuthContext);
-export { ADMIN_EMAILS };

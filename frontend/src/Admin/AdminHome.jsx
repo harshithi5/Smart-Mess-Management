@@ -1,42 +1,40 @@
 // src/Admin/AdminHome.jsx
-import React, { useEffect, useState } from "react";
+import React from "react";
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer,
-  RadarChart, Radar, PolarGrid, PolarAngleAxis,
   LineChart, Line, CartesianGrid, Legend,
 } from "recharts";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "../firebase";
 
-// ── Dummy fallback data ──────────────────────────────────────────────────────
-const MESSES = ["Mess 1", "Mess 2", "Mess 3 (Alder)", "Mess 4", "Mess 5"];
+const COLORS = ["#f97316", "#3b82f6", "#10b981", "#8b5cf6", "#f43f5e"];
 
-const dummyRatings = [
-  { mess: "Mess 1", rating: 3.8 },
-  { mess: "Mess 2", rating: 4.2 },
-  { mess: "Mess 3", rating: 3.5 },
+const MONTHLY_RATINGS = [
+  { mess: "Mess 1", rating: 3.9 },
+  { mess: "Mess 2", rating: 4.1 },
+  { mess: "Mess 3", rating: 3.7 },
   { mess: "Mess 4", rating: 4.6 },
-  { mess: "Mess 5", rating: 4.0 },
+  { mess: "Mess 5", rating: 4.1 },
 ];
 
-const dummyWastage = [
+const MONTHLY_WASTAGE = [
+  { mess: "Mess 1", total: 312 },
+  { mess: "Mess 2", total: 248 },
+  { mess: "Mess 3", total: 387 },
+  { mess: "Mess 4", total: 156 },
+  { mess: "Mess 5", total: 276 },
+];
+
+const WASTAGE_TREND = [
   { week: "Week 1", "Mess 1": 12, "Mess 2": 8,  "Mess 3": 15, "Mess 4": 6,  "Mess 5": 10 },
   { week: "Week 2", "Mess 1": 10, "Mess 2": 11, "Mess 3": 13, "Mess 4": 7,  "Mess 5": 9  },
   { week: "Week 3", "Mess 1": 8,  "Mess 2": 9,  "Mess 3": 10, "Mess 4": 5,  "Mess 5": 7  },
   { week: "Week 4", "Mess 1": 14, "Mess 2": 7,  "Mess 3": 12, "Mess 4": 8,  "Mess 5": 11 },
 ];
 
-const dummyComplaints = [
-  { mess: "Mess 1", count: 4 },
-  { mess: "Mess 2", count: 2 },
-  { mess: "Mess 3", count: 7 },
-  { mess: "Mess 4", count: 1 },
-  { mess: "Mess 5", count: 3 },
-];
+const bestMess    = [...MONTHLY_RATINGS].sort((a, b) => b.rating - a.rating)[0];
+const leastWaste  = [...MONTHLY_WASTAGE].sort((a, b) => a.total - b.total)[0];
+const avgRating   = (MONTHLY_RATINGS.reduce((s, r) => s + r.rating, 0) / MONTHLY_RATINGS.length).toFixed(1);
+const totalWaste  = MONTHLY_WASTAGE.reduce((s, m) => s + m.total, 0);
 
-const COLORS = ["#f97316", "#3b82f6", "#10b981", "#8b5cf6", "#f43f5e"];
-
-// ── Stat card ────────────────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color }) {
   return (
     <div className={`rounded-2xl p-5 text-white flex flex-col gap-1 ${color}`}>
@@ -47,44 +45,16 @@ function StatCard({ label, value, sub, color }) {
   );
 }
 
-// ── Section wrapper ──────────────────────────────────────────────────────────
 function Section({ title, children }) {
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-      <h2 className="text-base font-semibold text-gray-700 mb-4">{title}</h2>
+      <h2 className="text-sm font-semibold text-gray-500 uppercase tracking-wider mb-4">{title}</h2>
       {children}
     </div>
   );
 }
 
-// ── Main ─────────────────────────────────────────────────────────────────────
 function AdminHome() {
-  const [complaints, setComplaints] = useState([]);
-  const [loadingComplaints, setLoadingComplaints] = useState(true);
-
-  useEffect(() => {
-    // Try to load real complaints from Firestore; fall back to dummy
-    getDocs(collection(db, "complaints"))
-      .then((snap) => {
-        if (snap.empty) {
-          setComplaints(dummyComplaints);
-        } else {
-          // Aggregate by mess
-          const counts = {};
-          snap.docs.forEach((d) => {
-            const m = d.data().messName || "Unknown";
-            counts[m] = (counts[m] || 0) + 1;
-          });
-          setComplaints(Object.entries(counts).map(([mess, count]) => ({ mess, count })));
-        }
-      })
-      .catch(() => setComplaints(dummyComplaints))
-      .finally(() => setLoadingComplaints(false));
-  }, []);
-
-  const totalComplaints = complaints.reduce((s, c) => s + c.count, 0);
-  const avgRating = (dummyRatings.reduce((s, r) => s + r.rating, 0) / dummyRatings.length).toFixed(1);
-
   return (
     <div className="p-6 space-y-6 max-w-5xl mx-auto">
 
@@ -94,34 +64,44 @@ function AdminHome() {
         <p className="text-sm text-gray-400 mt-1">All messes at a glance</p>
       </div>
 
+      {/* Best mess last month — hero banner */}
+      <div className="rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-500 p-6 text-white flex flex-col md:flex-row items-center justify-between gap-4">
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-widest opacity-70 mb-1">🏆 Best Mess Last Month</div>
+          <div className="text-4xl font-bold">{bestMess.mess}</div>
+          <div className="text-indigo-200 text-sm mt-1">Highest student satisfaction · {bestMess.rating} ★ avg rating</div>
+        </div>
+        <div className="text-7xl">🍽️</div>
+      </div>
+
       {/* Stat cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Avg Rating"      value={avgRating + " ★"} sub="Across all messes"  color="bg-orange-400" />
-        <StatCard label="Total Complaints" value={totalComplaints}  sub="This month"          color="bg-rose-400"   />
-        <StatCard label="Messes"           value="5"               sub="Active"               color="bg-violet-500" />
-        <StatCard label="Notifications"    value="12"              sub="Sent this week"        color="bg-sky-500"    />
+        <StatCard label="Total Wastage"   value={totalWaste + " kg"} sub="This month"        color="bg-rose-400"   />
+        <StatCard label="Active Messes"   value="5"                sub="All operational"     color="bg-violet-500" />
+        <StatCard label="Least Wasteful"  value={leastWaste.mess}  sub={leastWaste.total + " kg total"} color="bg-emerald-500" />
       </div>
 
       {/* Ratings bar chart */}
-      <Section title="⭐ Average Mess Ratings">
+      <Section title="⭐ Average Mess Ratings — Last Month">
         <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={dummyRatings} barSize={36}>
+          <BarChart data={MONTHLY_RATINGS} barSize={36}>
             <XAxis dataKey="mess" tick={{ fontSize: 12 }} />
             <YAxis domain={[0, 5]} tick={{ fontSize: 12 }} />
             <Tooltip formatter={(v) => [v + " / 5", "Rating"]} />
             <Bar dataKey="rating" radius={[8, 8, 0, 0]}>
-              {dummyRatings.map((_, i) => (
-                <rect key={i} fill={COLORS[i % COLORS.length]} />
+              {MONTHLY_RATINGS.map((_, i) => (
+                <Bar key={i} fill={COLORS[i % COLORS.length]} />
               ))}
             </Bar>
           </BarChart>
         </ResponsiveContainer>
       </Section>
 
-      {/* Wastage line chart */}
+      {/* Wastage trend */}
       <Section title="🍽️ Food Wastage Trend (kg/week)">
         <ResponsiveContainer width="100%" height={240}>
-          <LineChart data={dummyWastage}>
+          <LineChart data={WASTAGE_TREND}>
             <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
             <XAxis dataKey="week" tick={{ fontSize: 12 }} />
             <YAxis tick={{ fontSize: 12 }} />
@@ -132,22 +112,6 @@ function AdminHome() {
             ))}
           </LineChart>
         </ResponsiveContainer>
-      </Section>
-
-      {/* Complaints bar chart */}
-      <Section title="📋 Complaints by Mess">
-        {loadingComplaints ? (
-          <div className="h-40 animate-pulse bg-gray-100 rounded-xl" />
-        ) : (
-          <ResponsiveContainer width="100%" height={200}>
-            <BarChart data={complaints} barSize={36}>
-              <XAxis dataKey="mess" tick={{ fontSize: 12 }} />
-              <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
-              <Tooltip />
-              <Bar dataKey="count" fill="#f43f5e" radius={[8, 8, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
       </Section>
 
     </div>
