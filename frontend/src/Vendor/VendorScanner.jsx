@@ -75,6 +75,7 @@ function VendorScanner() {
       await checkInDiner(messId, scannedUser.uid, scannedUser.name);
       setCheckedIn(true);
     } catch (e) {
+      console.error("Full check-in error:", e); 
       setError("Check-in failed: " + e.message);
     }
     setCheckingIn(false);

@@ -8,19 +8,14 @@ import QR from "../assets/qr1.svg";
 import Notification from "../assets/notification.svg";
 import Logout from "../assets/logout.svg";
 
-function NavItem({ icon, emoji, label, onClick, badge }) {
+function NavItem({ icon, emoji, label, onClick }) {
   return (
-    <div className="flex items-end gap-3 cursor-pointer group w-max relative" onClick={onClick}>
+    <div className="flex items-end gap-3 cursor-pointer group w-max" onClick={onClick}>
       {icon
         ? <img src={icon} className="h-6 group-hover:brightness-0 group-hover:grayscale transition-all" />
-        : <span className="h-6 w-6 flex items-center justify-center text-base">{emoji}</span>
+        : <span className="h-6 w-6 flex items-center justify-center text-base leading-none">{emoji}</span>
       }
       <div className="text-zinc-600 text-lg group-hover:text-black transition-all">{label}</div>
-      {badge > 0 && (
-        <span className="ml-1 bg-red-500 text-white text-xs rounded-full px-1.5 py-0.5 font-bold">
-          {badge}
-        </span>
-      )}
     </div>
   );
 }
@@ -46,6 +41,7 @@ function VendorLeftbar() {
         <NavItem icon={QR}           label="Scanner"       onClick={() => navigate("/vendor/dashboard/scanner")} />
         <NavItem icon={Notification} label="Notifications" onClick={() => navigate("/vendor/dashboard/notifications")} />
         <NavItem emoji="📣"          label="Complaints"    onClick={() => navigate("/vendor/dashboard/complaints")} />
+        <NavItem emoji="🗑️"          label="Wastage"       onClick={() => navigate("/vendor/dashboard/wastage")} />
         <NavItem icon={Logout}       label="Logout"        onClick={logoutVendor} />
       </div>
     </div>
