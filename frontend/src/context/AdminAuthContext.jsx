@@ -9,6 +9,7 @@ const AdminAuthContext = createContext();
 export const ADMIN_EMAILS = new Set([
   "bhumikamina96@gmail.com",
   "harshitkumarsingh2609@gmail.com",
+  "adityajilowa1@gmail.com",
 ]);
 
 export function AdminAuthProvider({ children }) {

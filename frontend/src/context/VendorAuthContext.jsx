@@ -17,6 +17,7 @@ const VENDOR_MESS_MAP = {
   // Admin emails can log in as vendor for testing (Alder mess)
   "bhumikamina96@gmail.com":         { messId: "mess4", messName: "Alder"  },
   "harshitkumarsingh2609@gmail.com": { messId: "mess4", messName: "Alder"  },
+  "adityajilowa1@gmail.com": { messId: "mess4", messName: "Alder"  },
 };
 
 export function VendorAuthProvider({ children }) {
