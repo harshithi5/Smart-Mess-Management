@@ -3,6 +3,7 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../auth/AuthContext'
 import UserQR from '../components/Userqr'
+import GPayQR from '../../../assets/gpay.png'
 
 function QRPage() {
   const { user } = useAuth()
@@ -36,7 +37,21 @@ function QRPage() {
         Show this QR code at the mess entrance. The staff will scan it to verify your identity.
       </p>
 
-      <UserQR />
+      <div className="grid w-full max-w-4xl gap-6 md:grid-cols-2">
+        <UserQR />
+
+        <div className="flex flex-col items-center gap-4 rounded-3xl bg-white p-6 shadow-lg">
+          <h2 className="text-xl font-semibold text-gray-700">Payment QR Code</h2>
+          <img
+            src={GPayQR}
+            alt="Google Pay payment QR code"
+            className="h-72 w-72 rounded-2xl border border-gray-100 bg-white object-contain p-3"
+          />
+          <p className="text-sm text-gray-500 text-center">
+            Use this QR code for mess-related payments when instructed by the mess office.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

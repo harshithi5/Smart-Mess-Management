@@ -77,6 +77,8 @@ function Hero({ onLoginClick }) {
 
           <p className="text-xs text-gray-400">
             For issues: <a href="mailto:b23133@students.iitmandi.ac.in" className="text-[#5352ed] hover:underline">b23133@students.iitmandi.ac.in</a>
+            <span className="mx-1">or</span>
+            <a href="mailto:b23144@students.iitmandi.ac.in" className="text-[#5352ed] hover:underline">b23144@students.iitmandi.ac.in</a>
           </p>
         </div>
 
@@ -183,7 +185,7 @@ function Contact() {
 
         <div className="grid md:grid-cols-2 gap-6 mb-10">
           {[
-            { icon: "📧", label: "Developer Email",  value: "b23133@students.iitmandi.ac.in", href: "mailto:b23133@students.iitmandi.ac.in" },
+            { icon: "📧", label: "Developer Emails", value: "b23133@students.iitmandi.ac.in, b23144@students.iitmandi.ac.in", href: "mailto:b23133@students.iitmandi.ac.in,b23144@students.iitmandi.ac.in" },
             { icon: "🏫", label: "Institution",      value: "IIT Mandi, Himachal Pradesh",    href: "https://iitmandi.ac.in" },
             { icon: "💻", label: "GitHub",           value: "github.com/harshithi5/Smart-Mess-Management", href: "https://github.com/harshithi5/Smart-Mess-Management" },
             { icon: "🐛", label: "Report a Bug",     value: "Open a GitHub issue",            href: "https://github.com/harshithi5/Smart-Mess-Management/issues" },
