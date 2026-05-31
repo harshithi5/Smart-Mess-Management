@@ -1,9 +1,8 @@
 // src/services/homeService.js
 import {
-  doc, getDoc, setDoc, updateDoc,
-  increment, runTransaction, serverTimestamp
+  doc, getDoc, runTransaction, serverTimestamp
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 
 // Date helpers
 export const todayKey = () => new Date().toISOString().split("T")[0]; // "2026-03-13"

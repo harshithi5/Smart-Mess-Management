@@ -1,9 +1,8 @@
 // src/services/messService.js
 import {
-  doc, getDoc, setDoc, updateDoc,
-  collection, getDocs, runTransaction, serverTimestamp
+  doc, getDoc, setDoc, runTransaction, serverTimestamp
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 
 export const MESSES = [
   { id: "mess1", name: "Peepal", capacity: 150 },

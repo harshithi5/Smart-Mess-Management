@@ -1,9 +1,9 @@
 // src/services/dinerService.js
 import {
   doc, setDoc, deleteDoc, collection,
-  onSnapshot, serverTimestamp, query, where, getDocs
+  onSnapshot, serverTimestamp, getDocs
 } from "firebase/firestore";
-import { db } from "../firebase";
+import { db } from "../config/firebase";
 
 const DINE_WINDOW_MS = 30 * 60 * 1000; // 30 minutes
 
